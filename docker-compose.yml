@@ -1,24 +1,49 @@
 version: "3.8"
 
 services:
-  api:
-    image: ${DOCKER_REGISTRTY_SERVER}/docker-gs-ping
+  app-chat-db:
+    image: mysql:latest
+    ports:
+      - "3308:3306"
+    volumes:
+      - ./volumes:/var/lib/mysql
+    command:
+      [
+        "mysqld",
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_unicode_ci",
+      ]
+    environment:
+      MYSQL_ROOT_PASSWORD: "Hcmut@123456"
+      MYSQL_DATABASE: "chat"
+      MYSQL_USER: "hcmut"
+      MYSQL_PASSWORD: "Hcmut@123456"
+
+  app-chat-api:
+    image: ${DOCKER_REGISTRTY_SERVER}/app-chat-api
     restart: always
     ports:
       - "8080:8080"
+    environment:
+      - WAIT_HOSTS=app-chat-db:3306
+      - DB_USER=hcmut
+      - DB_PASSWORD=Hcmut@123456
+      - DB_HOST=app-chat-db
+      - DB_PORT=3306
+      - DB_NAME=chat
 
-  ui:
-      image: ${DOCKER_REGISTRTY_SERVER}/react-app
-      restart: always
-      ports:
-        - "8009:80"
+  app-chat-ui:
+    image: ${DOCKER_REGISTRTY_SERVER}/app-chat-ui
+    restart: always
+    ports:
+      - "8009:80"
 
   nginx:
     image: nginx:latest
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
-      - api
-      - ui
+      - app-chat-api
+      - app-chat-ui
     ports:
       - 80:80
