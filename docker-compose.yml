@@ -11,7 +11,14 @@ services:
     restart: always
     <<: *default-attributes
     ports:
-      - "8080:8080"
+      - "8080"
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
     environment:
       - LOG_ENCODING=console
       - TRACE_PROVIDER_ENABLE=true
@@ -59,23 +66,23 @@ services:
   app-chat-ui:
     image: phuc17/chat-ui
     <<: *default-attributes
-    environment:
-      - REACT_APP_SERVER_HOST=http://localhost:8080
-      - REACT_APP_SELF_HOST=http://localhost:3000
-      - REACT_APP_SOCKET_CHAT=ws://localhost:8080
-      - REACT_APP_SERVICE_UPLOAD=https://service-upload-aws-git-main-tranquanghuy-09s-projects.vercel.app/upload
-      - REACT_APP_SECRET_KEY=xxx
+    # environment:
+    #   - REACT_APP_SERVER_HOST=http://localhost:8080
+    #   - REACT_APP_SELF_HOST=http://localhost:3000
+    #   - REACT_APP_SOCKET_CHAT=ws://localhost:8080
+    #   - REACT_APP_SERVICE_UPLOAD=https://service-upload-aws-git-main-tranquanghuy-09s-projects.vercel.app/upload
+    #   - REACT_APP_SECRET_KEY=xxx
     ports:
-      - "3000:3000"
-    extra_hosts:
-      - "app-chat-api:127.0.0.1"
+      - "3000:80"
+    env_file:
+      - ./.env
 
-  # nginx:
-  #   image: nginx:latest
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/nginx.conf
-  #   depends_on:
-  #     - app-chat-api
-  #     - app-chat-ui
-  #   ports:
-  #     - 80:80
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - app-chat-api
+      - app-chat-ui
+    ports:
+      - 80:80
