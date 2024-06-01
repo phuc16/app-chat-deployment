@@ -74,8 +74,6 @@ services:
     #   - REACT_APP_SECRET_KEY=xxx
     ports:
       - "3000:80"
-    env_file:
-      - ./.env
 
   nginx:
     image: nginx:latest
