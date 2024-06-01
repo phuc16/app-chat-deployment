@@ -11,14 +11,14 @@ services:
     restart: always
     <<: *default-attributes
     ports:
-      - "8080"
-    deploy:
-      replicas: 3
-      update_config:
-        parallelism: 2
-        delay: 10s
-      restart_policy:
-        condition: on-failure
+      - "8080:8080"
+    # deploy:
+    #   replicas: 3
+    #   update_config:
+    #     parallelism: 2
+    #     delay: 10s
+    #   restart_policy:
+    #     condition: on-failure
     environment:
       - LOG_ENCODING=console
       - TRACE_PROVIDER_ENABLE=true
